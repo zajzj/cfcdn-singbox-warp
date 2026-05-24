@@ -79,3 +79,8 @@ Code
 journalctl -u sing-box -f
 📄 LICENSE
 MIT License
+
+
+#######################################################
+# 每天凌晨 3 点自动优选 Cloudflare IP
+0 3 * * * bash /root/cfcdn-singbox-warp/auto_cf_ip.sh

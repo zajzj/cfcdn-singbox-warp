@@ -32,7 +32,7 @@ cat > /etc/sing-box/config.json <<EOF
   "inbounds": [
     {
       "type": "vless",
-      "listen": ":443",
+      "listen": "0.0.0.0:443",
       "users": [
         {
           "uuid": "$UUID"

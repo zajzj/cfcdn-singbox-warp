@@ -31,7 +31,7 @@
 
 # 🚀 一键安装（VLESS + WS + TLS）
 
-bash <(wget -qO- https://raw.githubusercontent.com/zajzj/cfcdn-singbox-warp/main/install.sh
+bash <(wget -qO- https://raw.githubusercontent.com/zajzj/cfcdn-singbox-warp/main/install.sh)
 
 
 安装过程中会提示输入：

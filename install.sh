@@ -125,7 +125,12 @@ systemctl enable sing-box
 systemctl restart sing-box
 
 # -----------------------------
-# 7. 完成
+# 7. 生成 VLESS 节点链接
+# -----------------------------
+VLESS_LINK="vless://$UUID@$DOMAIN:443?encryption=none&security=tls&type=ws&host=$DOMAIN&path=$WS_PATH#cfcdn-singbox-warp"
+
+# -----------------------------
+# 8. 完成
 # -----------------------------
 echo ""
 echo "=============================================="
@@ -138,6 +143,9 @@ echo "UUID：$UUID"
 echo "传输：ws"
 echo "路径：$WS_PATH"
 echo "TLS：开启"
+echo ""
+echo "=== 你的 VLESS 节点链接（可直接复制） ==="
+echo "$VLESS_LINK"
 echo ""
 echo "请确保 Cloudflare DNS 已开启橙色云（CDN）"
 echo ""

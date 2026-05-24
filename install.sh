@@ -12,6 +12,7 @@ UUID=$(cat /proc/sys/kernel/random/uuid)
 echo "安装依赖..."
 apt update -y
 apt install -y curl wget unzip
+apt install -y prips
 
 echo "安装 sing-box..."
 LATEST=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | grep browser_download_url | grep linux-amd64 | cut -d '"' -f 4)

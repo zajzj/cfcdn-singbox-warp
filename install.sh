@@ -1,41 +1,38 @@
 #!/bin/bash
 
-# ==========================================================
-#  cfcdn-singbox-warp - install.sh
-#  安装 VLESS + WS + TLS + WARP + 10MB 测速文件
-# ==========================================================
+echo "请输入你的域名:"
+read DOMAIN
 
-read -p "请输入你的域名: " DOMAIN
-read -p "请输入你的 WS 路径（例如 /ws）: " WS_PATH
+echo "请输入你的 WS 路径（例如 /ws）:"
+read WSPATH
+
 UUID=$(cat /proc/sys/kernel/random/uuid)
 
-echo "安装依赖..."
 apt update -y
-apt install -y curl wget unzip
-apt install -y prips
+apt install -y curl wget unzip prips
+
+echo "开启 BBR..."
+echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
+echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
+sysctl -p
 
 echo "安装 sing-box..."
-LATEST=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | grep browser_download_url | grep linux-amd64 | cut -d '"' -f 4)
-wget -O sing-box.tar.gz $LATEST
+wget -O sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.13.12/sing-box-1.13.12-linux-amd64.tar.gz
 tar -xzf sing-box.tar.gz
-mv sing-box*/sing-box /usr/bin/
+mv sing-box-1.13.12-linux-amd64/sing-box /usr/bin/sing-box
 chmod +x /usr/bin/sing-box
 
 mkdir -p /etc/sing-box
 
-echo "生成 config.json..."
-
 cat > /etc/sing-box/config.json <<EOF
 {
   "log": {
-    "disabled": false,
     "level": "info"
   },
   "inbounds": [
     {
       "type": "vless",
-      "listen": "::",
-      "listen_port": 443,
+      "listen": ":443",
       "users": [
         {
           "uuid": "$UUID"
@@ -43,25 +40,13 @@ cat > /etc/sing-box/config.json <<EOF
       ],
       "tls": {
         "enabled": true,
-        "server_name": "$DOMAIN",
         "certificate_path": "/etc/sing-box/cert.pem",
         "key_path": "/etc/sing-box/key.pem"
       },
       "transport": {
         "type": "ws",
-        "path": "$WS_PATH"
+        "path": "$WSPATH"
       }
-    },
-    {
-      "type": "http",
-      "listen": "::",
-      "listen_port": 8080,
-      "routes": [
-        {
-          "path": "/test.bin",
-          "body": "RANDOM_10MB"
-        }
-      ]
     }
   ],
   "outbounds": [
@@ -74,7 +59,9 @@ EOF
 
 echo "申请证书..."
 curl https://get.acme.sh | sh
+~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
 ~/.acme.sh/acme.sh --issue -d $DOMAIN --standalone
+
 ~/.acme.sh/acme.sh --install-cert -d $DOMAIN \
 --key-file /etc/sing-box/key.pem \
 --fullchain-file /etc/sing-box/cert.pem
@@ -98,11 +85,11 @@ systemctl daemon-reload
 systemctl enable sing-box
 systemctl restart sing-box
 
-echo ""
 echo "安装完成！"
 echo "UUID: $UUID"
 echo "域名: $DOMAIN"
-echo "WS 路径: $WS_PATH"
+echo "WS 路径: $WSPATH"
+
 echo ""
 echo "VLESS 节点："
-echo "vless://$UUID@$DOMAIN:443?encryption=none&security=tls&type=ws&host=$DOMAIN&path=$WS_PATH#cfcdn-singbox-warp"
+echo "vless://$UUID@$DOMAIN:443?encryption=none&security=tls&type=ws&host=$DOMAIN&path=$WSPATH#cfcdn-singbox-warp"

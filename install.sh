@@ -24,7 +24,8 @@ chmod +x /usr/bin/sing-box
 
 mkdir -p /etc/sing-box
 
-cat > /etc/sing-box/config.json <<EOF
+# 关键修复：使用 <<'EOF'，避免 BOM/CRLF/隐藏字符污染 JSON
+cat >/etc/sing-box/config.json <<'EOF'
 {
   "log": {
     "level": "info"
@@ -35,7 +36,7 @@ cat > /etc/sing-box/config.json <<EOF
       "listen": "0.0.0.0:443",
       "users": [
         {
-          "uuid": "$UUID"
+          "uuid": "UUID_REPLACE"
         }
       ],
       "tls": {
@@ -45,7 +46,7 @@ cat > /etc/sing-box/config.json <<EOF
       },
       "transport": {
         "type": "ws",
-        "path": "$WSPATH"
+        "path": "WSPATH_REPLACE"
       }
     }
   ],
@@ -57,10 +58,14 @@ cat > /etc/sing-box/config.json <<EOF
 }
 EOF
 
+# 替换变量
+sed -i "s/UUID_REPLACE/$UUID/" /etc/sing-box/config.json
+sed -i "s#WSPATH_REPLACE#$WSPATH#" /etc/sing-box/config.json
+
 echo "申请证书..."
 curl https://get.acme.sh | sh
 ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
-~/.acme.sh/acme.sh --issue -d $DOMAIN --standalone
+~/.acme.sh/acme.sh --issue -d $DOMAIN --standalone --force
 
 ~/.acme.sh/acme.sh --install-cert -d $DOMAIN \
 --key-file /etc/sing-box/key.pem \
@@ -68,7 +73,7 @@ curl https://get.acme.sh | sh
 
 echo "创建 systemd 服务..."
 
-cat > /etc/systemd/system/sing-box.service <<EOF
+cat >/etc/systemd/system/sing-box.service <<'EOF'
 [Unit]
 Description=sing-box service
 After=network.target

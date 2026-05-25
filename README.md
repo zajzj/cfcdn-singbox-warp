@@ -49,7 +49,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/zajzj/cfcdn-singbox-warp/main
 
 # 🚀 一键安装（WARP 出口）
 
-bash <(wget -qO- https://raw.githubusercontent.com/zajzj/cfcdn-singbox-warp/main/install_warp.sh
+bash <(wget -qO- https://raw.githubusercontent.com/zajzj/cfcdn-singbox-warp/main/install_warp.sh）
 
 
 安装完成后：

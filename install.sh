@@ -11,7 +11,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 apt update -y
-apt install -y curl socat prips wget unzip xdd
+apt install -y curl socat prips wget unzip xxd
 
 # ==============================
 #  输入域名与路径
